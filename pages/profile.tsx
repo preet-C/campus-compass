@@ -1,149 +1,125 @@
 // pages/profile.tsx
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import Navbar from '../components/Navbar'
 import { useRouter } from 'next/router'
+import Navbar from '../components/Navbar'
+import { User, Mail, BookOpen, LogOut } from 'lucide-react'
 
 export default function Profile() {
   const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  // 1. ADD LOADING STATE (Start as true)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  
-  // Form Fields
-  const [fullName, setFullName] = useState('')
-  const [year, setYear] = useState('1st Year')
-  const [branch, setBranch] = useState('CSE')
-  const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
     getProfile()
   }, [])
 
   async function getProfile() {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      router.push('/login')
-      return
-    }
+    try {
+      setLoading(true)
+      // 2. Get the current user
+      const { data: { user } } = await supabase.auth.getUser()
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('full_name, year, branch, avatar_url')
-      .eq('id', user.id)
-      .single()
+      if (!user) {
+        // Only redirect if we are SURE there is no user
+        router.push('/login')
+        return
+      }
 
-    if (data) {
-      setFullName(data.full_name || '')
-      setYear(data.year || '1st Year')
-      setBranch(data.branch || 'CSE')
-      setAvatarUrl(data.avatar_url || '')
-    }
-    setLoading(false)
-  }
+      setUser(user)
 
-  async function updateProfile() {
-    setSaving(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (user) {
-      const { error } = await supabase
+      // 3. Get extra profile details (Year, Branch)
+      let { data, error } = await supabase
         .from('profiles')
-        .update({ 
-          full_name: fullName, 
-          year, 
-          branch, 
-          avatar_url: avatarUrl 
-        })
+        .select('*')
         .eq('id', user.id)
+        .single()
 
-      if (error) alert('Error: ' + error.message)
-      else alert('✅ Profile Updated! You can now post as ' + fullName)
+      if (data) setProfile(data)
+    } catch (error) {
+      console.error('Error loading profile:', error)
+    } finally {
+      // 4. STOP LOADING (Reveal the page)
+      setLoading(false)
     }
-    setSaving(false)
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  async function signOut() {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
+  // 5. SHOW SPINNER WHILE CHECKING (Instead of kicking user out)
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="max-w-2xl mx-auto py-12 px-4">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="bg-indigo-600 px-8 py-6">
-            <h1 className="text-2xl font-bold text-white">Edit Your Profile</h1>
-            <p className="text-indigo-100">This is how you will appear in the Community feed.</p>
-          </div>
+      
+      <div className="max-w-2xl mx-auto py-10 px-6">
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-8">My Profile</h1>
+
+        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+          <div className="bg-indigo-600 h-32"></div>
           
-          <div className="p-8 space-y-6">
-            {/* Avatar Preview */}
-            <div className="flex items-center space-x-6">
-              <img 
-                src={avatarUrl || `https://ui-avatars.com/api/?name=${fullName || 'User'}&background=random`} 
-                alt="Avatar" 
-                className="w-24 h-24 rounded-full border-4 border-indigo-50 shadow-sm"
-              />
-              <div className="flex-1">
-                 <label className="block text-sm font-bold text-gray-700 mb-1">Avatar Image URL</label>
-                 <input
-                  type="text"
-                  placeholder="https://example.com/my-photo.jpg"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                />
-                <p className="text-xs text-gray-500 mt-1">Paste any image link (or leave empty for auto-initials).</p>
+          <div className="px-8 pb-8">
+            <div className="relative -mt-16 mb-6">
+              <div className="w-32 h-32 bg-white rounded-full p-2 shadow-lg inline-block">
+                 <img 
+                   src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${profile?.full_name || 'User'}&background=random`} 
+                   className="w-full h-full rounded-full object-cover"
+                 />
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="e.g. Preetham C G"
-                />
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Full Name</label>
+                <div className="flex items-center gap-3 mt-1 text-gray-900 text-lg font-bold">
+                  <User className="text-indigo-500" size={20} />
+                  {profile?.full_name || 'Student'}
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Branch</label>
-                <select 
-                  value={branch} 
-                  onChange={(e) => setBranch(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                >
-                  <option>CSE</option>
-                  <option>ISE</option>
-                  <option>ECE</option>
-                  <option>MECH</option>
-                  <option>CIVIL</option>
-                  <option>EEE</option>
-                </select>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Email</label>
+                <div className="flex items-center gap-3 mt-1 text-gray-900 text-lg">
+                  <Mail className="text-indigo-500" size={20} />
+                  {user?.email}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Branch</label>
+                  <div className="flex items-center gap-3 mt-1 text-gray-900 text-lg font-bold">
+                    <BookOpen className="text-indigo-500" size={20} />
+                    {profile?.branch || 'Not Set'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Year</label>
+                  <p className="mt-1 text-gray-900 text-lg font-bold">{profile?.year || '1st'} Year</p>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Year</label>
-              <div className="flex space-x-4">
-                {['1st Year', '2nd Year', '3rd Year', '4th Year'].map((y) => (
-                  <label key={y} className={`flex-1 border rounded-lg p-3 text-center cursor-pointer transition ${year === y ? 'bg-indigo-50 border-indigo-500 text-indigo-700 font-bold' : 'hover:bg-gray-50'}`}>
-                    <input type="radio" name="year" value={y} checked={year === y} onChange={(e) => setYear(e.target.value)} className="hidden" />
-                    {y}
-                  </label>
-                ))}
-              </div>
+            <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
+              <button 
+                onClick={signOut}
+                className="flex items-center gap-2 text-red-600 font-bold hover:bg-red-50 px-4 py-2 rounded-lg transition"
+              >
+                <LogOut size={18} /> Sign Out
+              </button>
             </div>
-
-            <button
-              onClick={updateProfile}
-              disabled={saving}
-              className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-indigo-700 transform active:scale-95 transition disabled:opacity-50"
-            >
-              {saving ? 'Saving...' : 'Save Profile Changes'}
-            </button>
           </div>
         </div>
       </div>

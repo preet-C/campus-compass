@@ -99,10 +99,11 @@ export default function Profile() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Branch</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">USN</label>
                   <div className="flex items-center gap-3 mt-1 text-gray-900 text-lg font-bold">
-                    <BookOpen className="text-indigo-500" size={20} />
-                    {profile?.branch || 'Not Set'}
+                    <span className="font-mono bg-gray-100 px-2 py-1 rounded text-base">
+                      {profile?.usn || 'Not Provided'}
+                    </span>
                   </div>
                 </div>
                 <div>

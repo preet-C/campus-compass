@@ -199,7 +199,7 @@ export default function QuestionDetail() {
                         {r.created_at ? formatDistanceToNow(new Date(r.created_at)) : 'Just now'} ago
                      </span>
                   </div>
-                  <p className="text-gray-800">{r.content}</p>
+                  <p className="text-gray-800 font-medium">{r.content}</p>
                </div>
              ))}
            </div>
@@ -209,10 +209,11 @@ export default function QuestionDetail() {
         <div className="bg-white p-4 rounded-xl border border-gray-200 sticky bottom-4 shadow-lg">
           <form onSubmit={postReply} className="flex gap-2">
              <input 
-               className="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition"
-               placeholder="Add a comment..."
-               value={newReply}
-               onChange={e => setNewReply(e.target.value)}
+               className="flex-1 bg-white border border-gray-300 text-gray-900 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+   /* ^^^ Changed bg-gray-50 to bg-white AND added text-gray-900 ^^^ */
+   placeholder="Add a comment..."
+   value={newReply}
+   onChange={e => setNewReply(e.target.value)}
              />
              <button type="submit" className="bg-indigo-600 text-white px-6 rounded-lg font-bold hover:bg-indigo-700 transition flex items-center gap-2">
                 <Send size={18} /> Post

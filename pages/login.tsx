@@ -32,7 +32,7 @@ export default function Login() {
               type="email"
               required
               placeholder="you@example.com"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mb-4 text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

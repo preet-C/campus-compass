@@ -113,18 +113,24 @@ export default function Navigation() {
            </button>
 
           <div className="relative h-64 md:h-80 w-full bg-gray-800">
-             {selectedBuilding.image_url ? (
-               <div className="relative w-full h-full">
-  <Image 
-    src={selectedBuilding.image_url} 
-    alt={selectedBuilding.name}
-    fill                           // Automatically fills the container
-    className="object-cover opacity-80" 
-    sizes="(max-width: 768px) 100vw, 80vw" // Helps browser pick the right size
-    priority={false}               // Lazy loads the image
-  />
-</div>
-             )}
+             {/* If there is an image, show it using Next.js Image */}
+          {selectedBuilding.image_url ? (
+            <div className="relative w-full h-full">
+              <Image
+                src={selectedBuilding.image_url}
+                alt={selectedBuilding.name}
+                fill
+                className="object-cover opacity-80"
+                sizes="(max-width: 768px) 100vw, 80vw"
+                priority={false}
+              />
+            </div>
+          ) : (
+            /* ELSE: Show the Map component (This was missing!) */
+            <div className="w-full h-full relative z-0">
+               <Map lat={selectedBuilding.lat} lng={selectedBuilding.lng} name={selectedBuilding.name} />
+            </div>
+          )}
              <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent pointer-events-none"></div>
           </div>
 

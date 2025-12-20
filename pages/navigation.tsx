@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import Navbar from '../components/Navbar'
 import dynamic from 'next/dynamic'
 import { Search, Navigation as NavIcon, ChevronLeft, MapPin } from 'lucide-react'
+import Image from 'next/image'
 
 // Dynamic imports
 const RouteMap = dynamic(() => import('../components/RouteMap'), {
@@ -113,11 +114,16 @@ export default function Navigation() {
 
           <div className="relative h-64 md:h-80 w-full bg-gray-800">
              {selectedBuilding.image_url ? (
-               <img src={selectedBuilding.image_url} className="w-full h-full object-cover opacity-80" alt={selectedBuilding.name} />
-             ) : (
-               <div className="w-full h-full relative z-0">
-                  <Map lat={selectedBuilding.lat} lng={selectedBuilding.lng} name={selectedBuilding.name} />
-               </div>
+               <div className="relative w-full h-full">
+  <Image 
+    src={selectedBuilding.image_url} 
+    alt={selectedBuilding.name}
+    fill                           // Automatically fills the container
+    className="object-cover opacity-80" 
+    sizes="(max-width: 768px) 100vw, 80vw" // Helps browser pick the right size
+    priority={false}               // Lazy loads the image
+  />
+</div>
              )}
              <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent pointer-events-none"></div>
           </div>

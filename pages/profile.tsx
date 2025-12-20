@@ -21,25 +21,37 @@ export default function Profile() {
   }, [])
 
   async function getProfile() {
-    try {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
+    const cachedProfile = localStorage.getItem('campus_profile')
+    if (cachedProfile) {
+      const parsed = JSON.parse(cachedProfile)
+      setProfile(parsed)
+      setLoading(false) // Stop spinner immediately if we have cache
+    } else {
+      setLoading(true) // Only show spinner if no cache
+    }
 
+    // FETCH FRESH DATA (Background Update)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
       if (!user) {
+        localStorage.removeItem('campus_profile') // Clear cache if not logged in
         router.push('/login')
         return
       }
+      
       setUser(user)
 
-      let { data, error } = await supabase
+      let { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single()
 
       if (data) {
-         setProfile(data)
-         setEditNameValue(data.full_name || '') // Initialize edit field
+        setProfile(data)
+        // SAVE TO CACHE for next time
+        localStorage.setItem('campus_profile', JSON.stringify(data))
       }
     } catch (error) {
       console.error('Error loading profile:', error)
@@ -71,7 +83,7 @@ export default function Profile() {
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
+    localStorage.removeItem('campus_profile')
     router.push('/login')
   }
 

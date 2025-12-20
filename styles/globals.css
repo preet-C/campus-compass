@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* styles/globals.css */
+
+/* FORCE readable text for all inputs */
+input, textarea, select {
+  background-color: #ffffff !important; /* White Background */
+  color: #111827 !important;            /* Dark Black Text */
+  border: 1px solid #d1d5db !important; /* Light Gray Border */
+}
+
+/* Ensure the main page background is always light gray (easy on eyes) */
+body {
+  background-color: #f9fafb;
+  color: #111827;
+}

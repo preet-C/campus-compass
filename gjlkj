@@ -1,0 +1,9 @@
+[33me857192[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m resolved navigation dark mode
+[33m00f6e02[m Fixed styles and navigation logic
+[33m39558cd[m Fixed navigation map logic
+[33ma158aab[m Optimized profile loading and lazy loaded maps
+[33m65509e0[m Added name to signup, auto-detect branch/year, and profile edit
+[33ma8d5916[m Added USN registration and new login page
+[33m6872437[m Fixed profile redirect
+[33md42c7f0[m Fixed text colors for light mode
+[33me8c1fb9[m Initial commit for Campus Compass

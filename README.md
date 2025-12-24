@@ -92,7 +92,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## 🤝 Contribution
 
-This project was built as part of the **Innovation & Design Thinking (IDT)** Lab.
 Contributions are welcome! Please open an issue or submit a pull request.
 
 **Developed by:** Preetham C G & Team (1st Year CSE)

@@ -134,6 +134,11 @@ export default function SubjectDetail() {
     });
   }
 
+  function sanitizeFilename(filename: string): string {
+    // Replace any character that is NOT a letter, number, dot, or hyphen with an underscore
+    return filename.replace(/[^a-zA-Z0-9.-]/g, "_");
+  }
+
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] || null;
     setNewResourceFile(file);
@@ -164,7 +169,8 @@ export default function SubjectDetail() {
       }
 
       // Upload file to Supabase Storage
-      const fileName = `${Date.now()}-${newResourceFile.name}`;
+      const sanitizedFileName = sanitizeFilename(newResourceFile.name);
+      const fileName = `${Date.now()}-${sanitizedFileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("course-materials")
         .upload(fileName, newResourceFile);

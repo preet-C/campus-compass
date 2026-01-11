@@ -299,7 +299,7 @@ export default function SubjectDetail() {
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-20">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 pt-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
         {/* Back Button */}
         <Link
           href={backToSubjectsHref}
@@ -313,7 +313,7 @@ export default function SubjectDetail() {
         </Link>
 
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 flex-wrap">
+        <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 text-sm text-gray-500 mb-4 overflow-x-auto md:overflow-visible whitespace-nowrap md:whitespace-normal flex-nowrap md:flex-wrap pb-1">
           {breadcrumbs.map((crumb, idx) => (
             <div key={idx} className="flex items-center gap-2">
               {crumb.href ? (
@@ -340,8 +340,8 @@ export default function SubjectDetail() {
         </div>
 
         {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
+          <div className="min-w-0">
             <h1 className="text-3xl font-black text-gray-900 mb-1">
               {decodedSubject}
             </h1>
@@ -352,7 +352,7 @@ export default function SubjectDetail() {
           {isAdmin && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition shadow-md"
+              className="bg-indigo-600 text-white px-4 py-3 rounded-xl text-sm font-bold inline-flex items-center justify-center gap-2 hover:bg-indigo-700 transition shadow-md w-full md:w-auto"
             >
               <Plus size={18} /> Add Resource
             </button>
@@ -653,7 +653,7 @@ function ResourceCard({
   onDelete: () => void;
 }) {
   return (
-    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition group relative">
+    <div className="bg-white p-5 sm:p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition group relative">
       {isAdmin && (
         <button
           onClick={onDelete}
@@ -668,17 +668,17 @@ function ResourceCard({
           <FileText className="text-indigo-600" size={24} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
+          <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2 break-words">
             {resource.title}
           </h3>
           <a
             href={resource.link}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 mt-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 mt-2 max-w-full"
           >
             <Download size={14} />
-            View/Download
+            <span className="truncate">View/Download</span>
           </a>
         </div>
       </div>

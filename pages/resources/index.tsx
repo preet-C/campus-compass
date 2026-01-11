@@ -281,7 +281,7 @@ export default function ResourcesIndex() {
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-20">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 pt-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-black text-gray-900 mb-1">Resources</h1>
@@ -291,7 +291,7 @@ export default function ResourcesIndex() {
         </div>
 
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 text-sm text-gray-500 mb-6 overflow-x-auto md:overflow-visible whitespace-nowrap md:whitespace-normal flex-nowrap md:flex-wrap pb-1">
           <Link
             href="/resources"
             className="text-gray-900 font-medium hover:text-indigo-600 transition"
@@ -349,7 +349,7 @@ export default function ResourcesIndex() {
         {!router.isReady ? (
           <div className="space-y-4">
             <div className="h-10 w-48 bg-gray-200 rounded-lg animate-pulse" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
@@ -366,7 +366,7 @@ export default function ResourcesIndex() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Select Year
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {years.map((year) => (
                     <button
                       key={year}
@@ -401,7 +401,7 @@ export default function ResourcesIndex() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   {yearFromQuery === 1 ? "Select Cycle" : "Select Branch"}
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {yearFromQuery === 1
                     ? cycles.map((cycle) => (
                         <button
@@ -409,10 +409,10 @@ export default function ResourcesIndex() {
                           onClick={() =>
                             navigateResources({ year: "1", cycle, step: "3" })
                           }
-                          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all text-left group"
+                          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all text-center sm:text-left group"
                         >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition mx-auto sm:mx-0">
                               <BookOpen className="text-indigo-600" size={24} />
                             </div>
                             <div>
@@ -439,10 +439,10 @@ export default function ResourcesIndex() {
                               step: "3",
                             })
                           }
-                          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all text-left group"
+                          className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all text-center sm:text-left group"
                         >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition mx-auto sm:mx-0">
                               <BookOpen className="text-indigo-600" size={24} />
                             </div>
                             <div>
@@ -476,14 +476,14 @@ export default function ResourcesIndex() {
                   Select Subject
                 </h2>
                 {subjects.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {subjects.map((subject, index) => (
                       <button
                         key={`${subject.code}-${index}`}
                         onClick={() => handleSubjectClick(subject)}
-                        className="bg-white p-5 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all text-left group"
+                        className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all text-center md:text-left group"
                       >
-                        <div className="flex flex-col">
+                        <div className="flex flex-col items-center md:items-start">
                           <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition">
                             {subject.name}
                           </h3>

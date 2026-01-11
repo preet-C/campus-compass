@@ -15,6 +15,7 @@ export default function Navbar() {
         <Link href="/" className="font-bold text-xl">🧭 Campus Compass</Link>
         <div className="flex space-x-4 text-sm font-medium">
           <Link href="/" className="hover:text-indigo-200">Community</Link>
+          <Link href="/resources" className="hover:text-indigo-200">Resources</Link>
           <Link href="/guides" className="hover:text-indigo-200">Guides</Link>
           <Link href="/navigation" className="hover:text-indigo-200">Navigation</Link>
           <Link href="/profile" className="hover:text-indigo-200">Profile</Link>

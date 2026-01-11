@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 import { Search, Navigation as NavIcon, ChevronLeft, MapPin } from 'lucide-react'
 import Image from 'next/image'
 
-// Dynamic imports (KEPT EXACTLY THE SAME)
+// Dynamic imports
 const RouteMap = dynamic(() => import('../components/RouteMap'), {
   ssr: false,
   loading: () => <div className="h-full w-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>

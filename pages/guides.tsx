@@ -160,40 +160,79 @@ export default function Guides() {
 
                       if (search && !subject.toLowerCase().includes(search.toLowerCase()) && subjectResources.length === 0) return null;
 
+                      // Filter resources by type
+                      const studyNotes = subjectResources.filter(r => 
+                        r.type?.toLowerCase() === 'notes' || r.type?.toLowerCase() === 'study notes'
+                      );
+                      const questionPapers = subjectResources.filter(r => 
+                        r.type?.toLowerCase() === 'question paper' || r.type?.toLowerCase() === 'question papers' || r.type?.toLowerCase() === 'pyq' || r.type?.toLowerCase() === 'pyqs'
+                      );
+
+                      if (search && !subject.toLowerCase().includes(search.toLowerCase()) && studyNotes.length === 0 && questionPapers.length === 0) return null;
+
                       return (
                         <div key={subject} className="animate-in fade-in slide-in-from-bottom-2">
-                          <h3 className="text-sm font-black text-gray-400 uppercase tracking-wider mb-3 ml-1 flex items-center gap-2">
+                          <h3 className="text-sm font-black text-gray-400 uppercase tracking-wider mb-4 ml-1 flex items-center gap-2">
                              <FolderOpen size={14}/> {subject}
                           </h3>
-                          {subjectResources.length > 0 ? (
-                            <div className="grid gap-3">
-                              {subjectResources.map(res => (
-                                <div key={res.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between hover:border-indigo-300 transition">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${res.type === 'Notes' ? 'bg-indigo-50 text-indigo-600' : 'bg-orange-50 text-orange-600'}`}>
-                                          {res.type === 'Notes' ? '📝' : '📄'}
-                                        </div>
-                                        <div>
-                                          <h3 className="font-bold text-gray-900 text-sm">{res.title}</h3>
-                                          <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{res.type}</span>
-                                        </div>
-                                    </div>
-                                    <a href={res.link} target="_blank" rel="noreferrer" className="p-2.5 bg-gray-50 rounded-lg text-gray-400 hover:bg-indigo-600 hover:text-white transition">
-                                      <Download size={18} />
-                                    </a>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            /* --- EMPTY STATE FOR SUBJECT --- */
-                            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
-                              <p className="text-gray-500 text-sm font-medium mb-1">No notes for {subject} yet.</p>
-                              <p className="text-xs text-gray-400 mb-2">Please contribute if materials are available.</p>
-                              <div className="inline-block bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-600 select-all">
-                                <span className="font-bold">Email:</span> campuscompassqueries@gmail.com
+                          
+                          {/* Study Notes Section */}
+                          <div className="mb-6">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Study Notes</h4>
+                            {studyNotes.length > 0 ? (
+                              <div className="grid gap-3">
+                                {studyNotes.map(res => (
+                                  <div key={res.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between hover:border-indigo-300 transition">
+                                      <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-indigo-50 text-indigo-600">
+                                            📝
+                                          </div>
+                                          <div>
+                                            <h3 className="font-bold text-gray-900 text-sm">{res.title}</h3>
+                                            <span className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded">{res.type}</span>
+                                          </div>
+                                      </div>
+                                      <a href={res.link} target="_blank" rel="noreferrer" className="p-2.5 bg-gray-50 rounded-lg text-gray-400 hover:bg-indigo-600 hover:text-white transition">
+                                        <Download size={18} />
+                                      </a>
+                                  </div>
+                                ))}
                               </div>
-                            </div>
-                          )}
+                            ) : (
+                              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
+                                <p className="text-gray-400 text-xs">No study notes available for this subject.</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Question Papers Section */}
+                          <div className="mb-6">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Question Papers</h4>
+                            {questionPapers.length > 0 ? (
+                              <div className="grid gap-3">
+                                {questionPapers.map(res => (
+                                  <div key={res.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between hover:border-orange-300 transition">
+                                      <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-orange-50 text-orange-600">
+                                            📄
+                                          </div>
+                                          <div>
+                                            <h3 className="font-bold text-gray-900 text-sm">{res.title}</h3>
+                                            <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">{res.type}</span>
+                                          </div>
+                                      </div>
+                                      <a href={res.link} target="_blank" rel="noreferrer" className="p-2.5 bg-gray-50 rounded-lg text-gray-400 hover:bg-orange-600 hover:text-white transition">
+                                        <Download size={18} />
+                                      </a>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
+                                <p className="text-gray-400 text-xs">No question papers available for this subject.</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )
                     })}

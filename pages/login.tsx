@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { Compass, AlertCircle, CheckCircle, User, Calendar, Hash, Mail, Lock } from 'lucide-react'
 // Import our new helpers
 import { getBranchFromUSN, calculateYearFromUSN } from '../lib/usnHelper'
@@ -28,6 +29,55 @@ export default function Auth() {
     return regex.test(input)
   }
 
+  // Email validation helper
+  function validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email.trim())
+  }
+
+  // Password validation helper
+  function validatePassword(password: string): { valid: boolean; error?: string } {
+    if (password.length < 6) {
+      return { valid: false, error: 'Password must be at least 6 characters long.' }
+    }
+    return { valid: true }
+  }
+
+  // Sanitize error messages to prevent information leakage
+  function sanitizeError(error: any): string {
+    const errorMessage = error?.message || 'An unexpected error occurred. Please try again.'
+    
+    // Map known Supabase errors to user-friendly messages
+    const errorMap: { [key: string]: string } = {
+      'Invalid login credentials': 'Invalid email or password. Please check your credentials and try again.',
+      'Email not confirmed': 'Please verify your email address before logging in.',
+      'User already registered': 'An account with this email already exists. Please log in instead.',
+      'Password should be at least 6 characters': 'Password must be at least 6 characters long.',
+      'Invalid email': 'Please enter a valid email address.',
+      'Email rate limit exceeded': 'Too many requests. Please wait a moment before trying again.',
+    }
+
+    // Check for partial matches in error messages
+    for (const [key, value] of Object.entries(errorMap)) {
+      if (errorMessage.toLowerCase().includes(key.toLowerCase())) {
+        return value
+      }
+    }
+
+    // For unknown errors, return a generic message to avoid leaking system info
+    // Log the actual error for debugging (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Auth error:', errorMessage)
+    }
+
+    // Generic user-friendly error
+    if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+      return 'Network error. Please check your connection and try again.'
+    }
+
+    return 'An error occurred. Please try again or contact support if the problem persists.'
+  }
+
   async function handleAuth(e: any) {
     e.preventDefault()
     setLoading(true)
@@ -35,14 +85,39 @@ export default function Auth() {
     setMessage('')
 
     try {
+      // Common validations for both login and signup
+      if (!email.trim()) {
+        throw new Error('Email address is required.')
+      }
+
+      if (!validateEmail(email)) {
+        throw new Error('Please enter a valid email address.')
+      }
+
+      if (!password) {
+        throw new Error('Password is required.')
+      }
+
+      // Password validation
+      const passwordValidation = validatePassword(password)
+      if (!passwordValidation.valid) {
+        throw new Error(passwordValidation.error || 'Invalid password.')
+      }
+
       if (isSignUp) {
         // --- SIGN UP LOGIC ---
         const cleanUSN = usn.toUpperCase().trim()
         
-        // Validations
-        if (!fullName.trim()) throw new Error("Full Name is required.")
-        if (!validateUSN(cleanUSN)) throw new Error("Invalid USN Format! (e.g., 4SI25CS090 or 1SI24AD017)")
-        if (!dob) throw new Error("Date of Birth is required.")
+        // Additional signup validations
+        if (!fullName.trim()) {
+          throw new Error('Full Name is required.')
+        }
+        if (!validateUSN(cleanUSN)) {
+          throw new Error('Invalid USN Format! (e.g., 4SI25CS090 or 1SI24AD017)')
+        }
+        if (!dob) {
+          throw new Error('Date of Birth is required.')
+        }
 
         // CALCULATE Branch and Year automatically
         const calculatedBranch = getBranchFromUSN(cleanUSN);
@@ -50,7 +125,7 @@ export default function Auth() {
 
         // Create User
         const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
         })
 
@@ -62,7 +137,7 @@ export default function Auth() {
             id: data.user.id,
             usn: cleanUSN,
             dob: dob,
-            full_name: fullName, // Use the entered name
+            full_name: fullName.trim(), // Use the entered name
             year: calculatedYear, // Use calculated year
             branch: calculatedBranch // Use decoded branch name
           })
@@ -75,14 +150,17 @@ export default function Auth() {
 
         setMessage("Registration successful! Logging you in...")
         // Auto login after successful signup since email verification is off
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+        const { error: signInError } = await supabase.auth.signInWithPassword({ 
+          email: email.trim(), 
+          password 
+        })
         if (!signInError) router.push('/')
         setIsSignUp(false)
 
       } else {
         // --- LOGIN LOGIC ---
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password
         })
 
@@ -90,11 +168,19 @@ export default function Auth() {
         router.push('/') 
       }
     } catch (err: any) {
-      setError(err.message)
+      // Use sanitized error messages to prevent information leakage
+      setError(sanitizeError(err))
     } finally {
       setLoading(false)
     }
   }
+
+  // TODO: Rate Limiting
+  // Currently, there is no rate limiting implemented. This means users could potentially
+  // spam login/signup requests. Consider implementing:
+  // 1. Client-side: Disable button for X seconds after failed attempts
+  // 2. Server-side: Use Supabase rate limiting policies or implement middleware
+  // 3. IP-based rate limiting via API routes or Supabase Edge Functions
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center p-4">
@@ -183,6 +269,17 @@ export default function Auth() {
                 value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
                </div>
             </div>
+
+            {!isSignUp && (
+              <div className="text-right">
+                <Link 
+                  href="/forgot-password"
+                  className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+            )}
 
             <button type="submit" disabled={loading}
               className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition shadow-lg disabled:opacity-50 flex justify-center items-center gap-2">

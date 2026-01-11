@@ -3,10 +3,9 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import Navbar from '../components/Navbar'
 import NewQuestion from '../components/NewQuestion'
-import Link from 'next/link'
+import QuestionCard from '../components/QuestionCard'
 import { useRouter } from 'next/router'
-import { formatDistanceToNow } from 'date-fns'
-import { MessageSquare, ArrowBigUp, ArrowBigDown, Trophy, Clock, Search } from 'lucide-react'
+import { Trophy, Clock, Search } from 'lucide-react'
 
 export default function Home() {
   const router = useRouter()
@@ -17,6 +16,7 @@ export default function Home() {
   const [search, setSearch] = useState('')
   const [userVotes, setUserVotes] = useState<any>({})
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const channels = [
     'All', 'General', 'CS Related', 'Electronics Related', 'Mechanical', 
@@ -25,9 +25,22 @@ export default function Home() {
 
   // 1. Unified Load Logic: Get User FIRST, then Questions
   const loadData = async () => {
-    // A. Get User
+    // A. Get User and Admin Status
     const { data: { user } } = await supabase.auth.getUser()
     setCurrentUser(user)
+
+    // Check if user is admin
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single()
+      
+      setIsAdmin(profile?.is_admin === true)
+    } else {
+      setIsAdmin(false)
+    }
 
     // B. Get Questions
     let query = supabase
@@ -118,6 +131,11 @@ export default function Home() {
     q.details.toLowerCase().includes(search.toLowerCase())
   )
 
+  // Handle question deletion (optimistic update)
+  const handleDelete = (questionId: string) => {
+    setQuestions(qs => qs.filter(q => q.id !== questionId))
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <Navbar />
@@ -170,45 +188,14 @@ export default function Home() {
           {loading ? <p className="text-center py-10 text-gray-400">Loading...</p> : (
             <div className="space-y-4">
               {filteredQuestions.map((q) => (
-                <div key={q.id} className="bg-white rounded-xl border border-gray-200 flex overflow-hidden hover:border-gray-300 transition group">
-                  
-                  {/* Vote Sidebar */}
-                  <div className="w-12 bg-gray-50 border-r border-gray-100 flex flex-col items-center py-3 gap-1">
-                    <button onClick={() => handleVote(q.id, 'up')} className={`p-1 rounded hover:bg-gray-200 ${userVotes[q.id] === 'up' ? 'text-orange-600' : 'text-gray-400'}`}>
-                      <ArrowBigUp size={24} fill={userVotes[q.id] === 'up' ? "currentColor" : "none"} />
-                    </button>
-                    <span className={`text-sm font-bold ${userVotes[q.id] === 'up' ? 'text-orange-600' : userVotes[q.id] === 'down' ? 'text-blue-600' : 'text-gray-700'}`}>{q.upvotes || 0}</span>
-                    <button onClick={() => handleVote(q.id, 'down')} className={`p-1 rounded hover:bg-gray-200 ${userVotes[q.id] === 'down' ? 'text-blue-600' : 'text-gray-400'}`}>
-                      <ArrowBigDown size={24} fill={userVotes[q.id] === 'down' ? "currentColor" : "none"} />
-                    </button>
-                  </div>
-
-                  <div className="flex-1 p-4">
-                    <div className="flex items-center text-xs mb-2">
-                       <span className="font-bold text-gray-900 mr-2">{q.profiles?.full_name || 'Anonymous'}</span>
-                       <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded text-[10px] font-medium mr-2">
-                         {q.profiles?.branch || 'Student'} • {q.profiles?.year || '1st'} Year
-                       </span>
-                       <span className="text-gray-400">• {formatDistanceToNow(new Date(q.created_at))} ago</span>
-                       <span className="ml-auto bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">{q.channel}</span>
-                    </div>
-
-                    <Link href={`/questions/${q.id}`}>
-                      <h3 className="text-lg font-bold text-gray-900 mb-1 hover:text-indigo-600 cursor-pointer">{q.title}</h3>
-                    </Link>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-3">{q.details}</p>
-                    
-                    {q.image_url && <img src={q.image_url} className="h-48 rounded-lg object-cover border border-gray-200 mb-3" />}
-
-                    <div className="flex items-center gap-4 text-gray-500 text-xs font-bold">
-                       <Link href={`/questions/${q.id}`} className="flex items-center gap-1 hover:bg-gray-100 px-2 py-1 rounded transition">
-                          <MessageSquare size={16} /> 
-                          {/* Reply Count */}
-                          <span>{q.replies && q.replies[0] ? q.replies[0].count : 0} Replies</span>
-                       </Link>
-                    </div>
-                  </div>
-                </div>
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  userVote={userVotes[q.id] || null}
+                  isAdmin={isAdmin}
+                  onVote={handleVote}
+                  onDelete={handleDelete}
+                />
               ))}
             </div>
           )}
